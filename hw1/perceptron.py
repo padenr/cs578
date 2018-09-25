@@ -24,28 +24,31 @@ def shift_network(nodes, hidden, weight1, weight2, bias1, bias2, output, target)
         result = 0
     
     error = calc_error(target, result)
+    error_3 = 0.5 * error * weight2[0,0]
+    error_4 = 0.5 * error * weight2[1,0] 
 
     weight2[0,0] = shift_weight(0.5, error, hidden[0,0], weight2[0,0])
     weight2[1,0] = shift_weight(0.5, error, hidden[0,1], weight2[1,0])
 
-    weight1[0,0] = shift_weight(0.5, error, nodes[0,0], weight1[0,0])
-    weight1[1,0] = shift_weight(0.5, error, nodes[0,0], weight1[1,0])
-    weight1[0,1] = shift_weight(0.5, error, nodes[0,1], weight1[0,1])
-    weight1[1,1] = shift_weight(0.5, error, nodes[0,1], weight1[1,1])
+
+    weight1[0,0] = shift_weight(0.5, error_3, nodes[0,0], weight1[0,0])
+    weight1[1,0] = shift_weight(0.5, error_3, nodes[0,0], weight1[1,0])
+    weight1[0,1] = shift_weight(0.5, error_4, nodes[0,1], weight1[0,1])
+    weight1[1,1] = shift_weight(0.5, error_4, nodes[0,1], weight1[1,1])
 
 
 
-    bias1[0,0] = change_bias(0.5, error, bias1[0,0])
-    bias1[0,1] = change_bias(0.5, error, bias1[0,1])
+    bias1[0,0] = change_bias(0.5, error_3, bias1[0,0])
+    bias1[0,1] = change_bias(0.5, error_4, bias1[0,1])
     bias2 = change_bias(0.5, error, bias2)
 
-    return (weight1, weight2, bias1, bias2, result, error)
+    return (weight1, weight2, bias1, bias2, result, error, error_3, error_4)
 
 def print_all_simple(nodes, target, output, result, error, weights, bias):
     print(" {}   {}   {}   {}   {}   {}   {}   {}    {}".format(nodes[0,0], nodes[0,1], target, output, result, error, weights[0,0], weights[1,0], bias))
 
-def print_all(nodes, target, hidden, output, result, error, weight1, weight2, bias1, bias2): 
-    print("{}   {}   {}   {}   {}   {}   {}   {}    {}   {}    {}   {}    {}     {}    {}    {}    {}".format(nodes[0,0], nodes[0,1], target, hidden[0,0], hidden[0,1], output, result, error, weight1[0,0], weight1[1,0], weight1[0,1], weight1[1,1], weight2[0,0], weight2[1,0], bias1[0,0], bias1[0,1], bias2))
+def print_all(nodes, target, hidden, output, result, error, error_3, error_4, weight1, weight2, bias1, bias2): 
+    print("{}   {}   {}    {}   {}   {}   {}   {}    {}   {}    {}   {}    {}     {}    {}    {}    {}    {}     {}".format(nodes[0,0], nodes[0,1], target, hidden[0,0], hidden[0,1], output, result, error, error_3, error_4, weight1[0,0], weight1[1,0], weight1[0,1], weight1[1,1], weight2[0,0], weight2[1,0], bias1[0,0], bias1[0,1], bias2))
 
 
 def calc_error(target, output):
@@ -62,14 +65,14 @@ def change_bias(alpha, error, bias):
 def activate_hidden(h):
     
     if h[0,0] >= 0: 
-        h[0,0] = 1
+        h[0,0] = .85
     else:  
-        h[0,0] = 0
+        h[0,0] = .01
 
     if h[0,1] >= 0: 
-        h[0,1] = 1
+        h[0,1] = .85
     else:  
-        h[0,1] = 0
+        h[0,1] = .01
 
     return h
 
@@ -90,7 +93,7 @@ i = 0
 print(" V1   V2   t3   y3   V3    e   W1   W2    b")
 
 
-while (i < 5): 
+while (i < 100): 
 
     #0 and 1 
     output = b + np.dot(x2,w)
@@ -113,50 +116,64 @@ while (i < 5):
     print_all_simple(x1, 0, output, v3, e, w, b)
 
     i = i + 1
+    j = -1
+
+while (True):
+
+    j = j + 1 
+    x1 = np.array([[0,0]], float)
+    x2 = np.array([[0,1]], float)
+    x3 = np.array([[1,0]], float)
+    x4 = np.array([[1,1]], float)
+
+    w1 = np.random.rand(2,2)
+    w2 = np.random.rand(2,1)
+    b1 = np.random.rand(1,2)
+    b2 = 0
+
+    print(" V1   V2   t3   y1   y2   y3   V3    e1     e2     e3   W1   W2   W3   W4   W5    W6    b1    b2    b3")
+
+    i = 0
+
+    while (i < 100): 
+
+        #0 and 0
+        h = b1 + np.dot(x1, w1)
+        hidden = activate_hidden(h)
+        output = b2 + np.dot(hidden,w2)
+        w1,w2,b1,b2,o5,e,e3,e4 = shift_network(x1,hidden,w1,w2,b1,b2,output,0)
+        result1 = o5
+        print_all(x1, 0, h, output, o5, e, e3, e4, w1, w2, b1, b2)
+
+        #0 and 1
+        h = b1 + np.dot(x2, w1)
+        hidden = activate_hidden(h)
+        output = b2 + np.dot(hidden,w2)
+        w1,w2,b1,b2,o5,e,e3,e4 = shift_network(x2,hidden,w1,w2,b1,b2,output,1)
+        result2 = o5
+        print_all(x2, 1, h, output, o5, e, e3, e4, w1, w2, b1, b2)
+
+        #1 and 0 
+        h = b1 + np.dot(x3, w1)
+        hidden = activate_hidden(h)
+        output = b2 + np.dot(hidden,w2)
+        w1,w2,b1,b2,o5,e,e3,e4 = shift_network(x3,hidden,w1,w2,b1,b2,output,1)
+        result3 = o5
+        print_all(x3, 1, h, output, o5, e, e3, e4, w1, w2, b1, b2)
 
 
-x1 = np.array([[0,0]], float)
-x2 = np.array([[0,1]], float)
-x3 = np.array([[1,0]], float)
-x4 = np.array([[1,1]], float)
+        #1 and 1 
+        h = b1 + np.dot(x4, w1)
+        hidden = activate_hidden(h)
+        output = b2 + np.dot(hidden,w2)
+        w1,w2,b1,b2,o5,e,e3,e4 = shift_network(x4,hidden,w1,w2,b1,b2,output,0)
+        result4 = o5
+        print_all(x4, 0, h, output, o5, e, e3, e4, w1, w2, b1, b2)
 
-w1 = np.zeros((2,2))
-w2 = np.zeros((2,1))
-b1 = np.zeros((1,2))
-b2 = 0
+        i = i + 1
+    
+    if(result1 == 0 and result2 == 1 and result3 == 1 and result4 == 0):
+        break
 
-print(" V1   V2   t3   y1   y2   y3   V3    e   W1   W2   W3   W4   W5    W6    b1    b2    b3")
-
-i = 0
-
-while (i < 5): 
-
-    #0 and 0
-    h = b1 + np.dot(x1, w1)
-    hidden = activate_hidden(h)
-    output = b2 + np.dot(hidden,w2)
-    w1,w2,b1,b2,o5,e = shift_network(x1,hidden,w1,w2,b1,b2,output,0)
-    print_all(x1, 0, h, output, o5, e, w1, w2, b1, b2)
-
-    #0 and 1
-    h = b1 + np.dot(x2, w1)
-    hidden = activate_hidden(h)
-    output = b2 + np.dot(hidden,w2)
-    w1,w2,b1,b2,o5,e = shift_network(x2,hidden,w1,w2,b1,b2,output,1)
-    print_all(x2, 1, h, output, o5, e, w1, w2, b1, b2)
-
-    #1 and 0 
-    h = b1 + np.dot(x3, w1)
-    hidden = activate_hidden(h)
-    output = b2 + np.dot(hidden,w2)
-    w1,w2,b1,b2,o5,e = shift_network(x3,hidden,w1,w2,b1,b2,output,1)
-    print_all(x3, 1, h, output, o5, e, w1, w2, b1, b2)
-
-    #1 and 1 
-    h = b1 + np.dot(x4, w1)
-    hidden = activate_hidden(h)
-    output = b2 + np.dot(hidden,w2)
-    w1,w2,b1,b2,o5,e = shift_network(x4,hidden,w1,w2,b1,b2,output,0)
-    print_all(x4, 0, h, output, o5, e, w1, w2, b1, b2)
-
-    i = i + 1
+    
+print(j)
