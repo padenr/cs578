@@ -1,57 +1,55 @@
 import numpy as np
 
 def activate(h):
-    return 1.0/(1.0 + np.exp(-h))
+    return 1/(1 + np.exp(-h))
 
-x = np.array([[0,0],[0,1],[1,0],[1,1]], float)
+#Inputs with their respective biases
+x = np.array([[0,0,1],[0,1,1],[1,0,1],[1,1,1]])
 y = np.array([0,1,1,0])
-x = np.c_[x, np.ones(4)]
-w = np.random.rand(3,2)
-w2 = np.random.rand(3,1)
+#Randomize the weight matrix
+w = 2 * np.random.rand(3,2) - 1
+w2 = 2* np.random.rand(3,1) - 1
+
+#learning rate or (eta) 
 learn = 0.5
-
-print(x)
-
-print(" V1   V2   t3   y1   y2   y3   V3    e1     e2     e3   W1   W2   W3   W4   W5    W6    b1    b2    b3")
 
 j = 0
 
-while (j < 10000): 
+while (j < 6000): 
 
     #0 and 0
     print("")
     for i in range(x.shape[0]):
+        #Select a singular input from the list
         input = x[i]
         input = np.reshape(input, (1,3))
-        h = np.dot(x[i], w)
-        hidden = np.zeros((1,3))
+
+        #Feedforward 
+        h = np.dot(input, w)
         hidden = activate(h)
         hidden = np.append(hidden, [1])
+        hidden = np.reshape(hidden, (1,3))
         output = np.dot(hidden,w2)
         result = activate(output)
         result = result[0]
         r = result
 
-        
+        #Compute the backpropagation using the derivative of 
+        #the sigmoid and the error from the actual value
 
-        d2 = result * (1 - result) * (y[i] - result)
-        d1 = hidden * (1 - hidden) * (np.dot(d2,np.transpose(w2)))
-        hidden = np.reshape(hidden,(1,3))
+        d2 = ((1 - result) * result) * (y[i] - result)
+        d1 = (hidden * (1 - hidden)) * d2.dot(w2.T)
         d2 = np.reshape(d2, (1,1))
-        dT2 = np.dot(np.transpose(hidden),d2)
-        w2 += (-learn * dT2)
 
-        dT1 = np.dot(np.transpose(input),d1[:,:-1])
-        print(dT1)
-        w += (-learn * dT1)
-        w += (-learn * dT1)
-        w += (-learn * dT1)
+        update2 = (hidden.T.dot(d2))
+        update1 = (input.T.dot(d1[:,:-1]))
+
+        #Update the weights
+
+        w2 += learn * update2
+        w += learn * update1
     
-        #w1,w2,b1,b2,o5,e,e3,e4 = shift_network(x,hidden,w1,w2,b1,b2,output,0)
-        #result1 = o5
-        print(x[i])
-        print("result " + str(r))
-
-        #print_all(x1, 0, h, output, o5, e, e3, e4, w1, w2, b1, b2)
-
+        print(input[0])
+        print("result " + str(r[0]))
+        
         j = j + 1
