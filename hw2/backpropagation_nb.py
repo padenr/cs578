@@ -5,10 +5,9 @@ def activate(h):
 
 x = np.array([[0,0],[0,1],[1,0],[1,1]], float)
 y = np.array([0,1,1,0])
-x = np.c_[x, np.ones(4)]
-w = np.random.rand(3,2)
-w2 = np.random.rand(3,1)
-learn = 0.5
+w = 2* np.random.rand(2,2) - 1
+w2 =2* np.random.rand(2,1) - 1
+learn = .9
 
 print(x)
 
@@ -19,14 +18,14 @@ j = 0
 while (j < 10000): 
 
     #0 and 0
-    print("")
+    print(w)
+    print(w2)
     for i in range(x.shape[0]):
         input = x[i]
-        input = np.reshape(input, (1,3))
+        input = np.reshape(input, (1,2))
         h = np.dot(x[i], w)
-        hidden = np.zeros((1,3))
+        hidden = np.zeros((1,2))
         hidden = activate(h)
-        hidden = np.append(hidden, [1])
         output = np.dot(hidden,w2)
         result = activate(output)
         result = result[0]
@@ -34,15 +33,14 @@ while (j < 10000):
 
         
 
-        d2 = result * (1 - result) * (y[i] - result)
-        d1 = hidden * (1 - hidden) * (np.dot(d2,np.transpose(w2)))
-        hidden = np.reshape(hidden,(1,3))
+        d2 = (result *(1 - result)) * (y[i] - result)
+        d1 = (hidden * (1 - hidden)) * (np.dot(d2,np.transpose(w2)))
+        hidden = np.reshape(hidden,(1,2))
         d2 = np.reshape(d2, (1,1))
         dT2 = np.dot(np.transpose(hidden),d2)
         w2 += (-learn * dT2)
 
         dT1 = np.dot(np.transpose(input),d1[:,:-1])
-        print(dT1)
         w += (-learn * dT1)
         w += (-learn * dT1)
         w += (-learn * dT1)
