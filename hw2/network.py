@@ -283,5 +283,5 @@ def sigmoid_prime(z):
 if __name__ == '__main__':
 
     training_data, validation_data, test_data = ml.load_data_wrapper()
-    net = Network([784,100,10])
-    net.SGD(training_data,30,10,3.0,test_data=test_data)
+    net = Network([784,30,10])
+    net.SGD(training_data,150,10,0.01,test_data=test_data)

@@ -661,6 +661,6 @@ def sigmoid_prime(z):
 if __name__ == "__main__":
 
     training_data, validation_data, test_data = mnist_loader.load_data_wrapper()
-    net = Network([784,30,10],cost=QuadraticCost)
+    net = Network([784,30,10],cost=CrossEntropyCost)
     net.large_weight_initializer()
     net.SGD(training_data,30,10,0.5,evaluation_data=test_data,monitor_evaluation_accuracy=True)
