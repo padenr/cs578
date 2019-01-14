@@ -176,4 +176,5 @@ while (True):
         break
 
     
-print(j)
+print(w1)
+print(w2)

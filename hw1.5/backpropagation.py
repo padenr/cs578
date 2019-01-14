@@ -1,4 +1,7 @@
 import numpy as np
+import random 
+from datetime import datetime
+random.seed(datetime.now())
 
 def activate(h):
     return 1/(1 + np.exp(-h))
@@ -11,14 +14,13 @@ w = 2 * np.random.rand(3,2) - 1
 w2 = 2* np.random.rand(3,1) - 1
 
 #learning rate or (eta) 
-learn = .01
+learn = .5
 
 j = 0
 
-while (j < 50000): 
+while (j < 1000000): 
 
-    #0 and 0
-    print("")
+    flag = 0 
     for i in range(x.shape[0]):
         #Select a singular input from the list
         input = x[i]
@@ -33,6 +35,18 @@ while (j < 50000):
         result = activate(output)
         result = result[0]
         r = result
+
+        if result > 0.9:
+            true = 1
+        elif  result < 0.1:
+            true = 0
+        else:
+            true = 3
+
+        if true == y[i]:
+            flag += 1
+        else:
+            flag = 0
 
         #Compute the backpropagation using the derivative of 
         #the sigmoid and the error from the actual value
@@ -53,3 +67,10 @@ while (j < 50000):
         print("result " + str(r[0]))
         
         j = j + 1
+    
+    if flag == 4:
+        print j
+        break
+
+print w
+print w2
